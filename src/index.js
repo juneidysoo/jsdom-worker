@@ -23,7 +23,7 @@ if (!global.fetch || !global.fetch.jsdomWorker) {
 			return new Promise((resolve, reject) => {
 				const Res = global.Response || Response;
 				resolve(new Res(
-					fs.readFileSync(url.slice(7)),
+					fs.readFileSync(url.slice(7)).toString(),
 					{ status: 200, statusText: 'OK' }
 				));
 			});
