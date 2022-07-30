@@ -1,3 +1,4 @@
+import fs from 'fs';
 import mitt from 'mitt';
 import uuid from 'uuid-v4';
 import fetch, { Response } from 'node-fetch';
@@ -15,11 +16,23 @@ if (!global.URL.$$objects) {
 if (!global.fetch || !global.fetch.jsdomWorker) {
 	let oldFetch = global.fetch || fetch;
 	global.fetch = function(url, opts) {
-		if (url.match(/^blob:/)) {
-			return new Promise( (resolve, reject) => {
+		if (url instanceof URL) {
+			url = url.href;
+		}
+		if (url.match(/^file:/)) {
+			return new Promise((resolve, reject) => {
+				const Res = global.Response || Response;
+				resolve(new Res(
+					fs.readFileSync(url.slice(7)),
+					{ status: 200, statusText: 'OK' }
+				));
+			});
+		}
+		else if (url.match(/^blob:/)) {
+			return new Promise((resolve, reject) => {
 				let fr = new FileReader();
 				fr.onload = () => {
-					let Res = global.Response || Response;
+					const Res = global.Response || Response;
 					resolve(new Res(fr.result, { status: 200, statusText: 'OK' }));
 				};
 				fr.onerror = () => {
